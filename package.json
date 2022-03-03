@@ -10,7 +10,7 @@
   "author": "hdavidethan",
   "license": "ISC",
   "dependencies": {
-    "jsonwebtoken": "^8.5.1",
+    "jose": "^4.5.1",
     "node-rsa": "^1.1.1"
   },
   "devDependencies": {

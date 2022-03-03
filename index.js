@@ -1,5 +1,6 @@
+const crypto = require("crypto");
 const fs = require("fs");
-const jwt = require("jsonwebtoken");
+const jose = require("jose");
 const path = require("path");
 
 class KeyStore {
@@ -21,7 +22,7 @@ class KeyStore {
       throw new Error("No keys found!");
     }
   }
-  
+
   static getSecretKey() {
     if (KeyStore.#secretKey) {
       return KeyStore.#secretKey;
@@ -34,22 +35,27 @@ class KeyStore {
 function generateSigningRequestHandler(reqObj, secretKey, asymmetric) {
   return (_req, res) => {
     if (asymmetric) {
-      try {
-        const loginRequest = jwt.sign(reqObj, secretKey, {
-          algorithm: "RS256",
-          expiresIn: "5 minutes",
-        });
-        res.json({ token: loginRequest });
-      } catch {
-        throw new Error("Invalid secret key! Use the keygen");
-      }
+      new jose.SignJWT(reqObj)
+        .setProtectedHeader({
+          typ: "JWT",
+          alg: "RS256",
+        })
+        .setAudience("scottylabs.org")
+        .setExpirationTime("5 minutes")
+        .setIssuedAt()
+        .sign(crypto.createPrivateKey(secretKey))
+        .then((loginRequest) => res.json({ token: loginRequest }));
     } else {
-      const loginRequest = jwt.sign(
-        reqObj,
-        secretKey,
-        { algorithm: "HS256", expiresIn: "5 minutes" }
-      );
-      res.json({ token: loginRequest });
+      new jose.SignJWT(reqObj)
+        .setProtectedHeader({
+          typ: "JWT",
+          alg: "HS256",
+        })
+        .setAudience("scottylabs.org")
+        .setExpirationTime("5 minutes")
+        .setIssuedAt()
+        .sign(new TextEncoder().encode(secretKey))
+        .then((loginRequest) => res.json({ token: loginRequest }));
     }
   };
 }
