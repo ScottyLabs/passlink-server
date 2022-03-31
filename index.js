@@ -11,7 +11,7 @@ class KeyStore {
   }
 
   static readKey(secretKey) {
-    if (publicKey !== undefined && secretKey !== undefined) {
+    if (secretKey !== undefined) {
       KeyStore.#secretKey = secretKey;
     } else if (
       fs.existsSync(path.resolve(process.cwd(), "keys")) &&
