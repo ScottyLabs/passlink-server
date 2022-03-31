@@ -10,8 +10,10 @@ class KeyStore {
     throw new Error("Do not instantiate this class. Use static methods");
   }
 
-  static readKey() {
-    if (
+  static readKey(secretKey) {
+    if (publicKey !== undefined && secretKey !== undefined) {
+      KeyStore.#secretKey = secretKey;
+    } else if (
       fs.existsSync(path.resolve(process.cwd(), "keys")) &&
       fs.existsSync(path.resolve(process.cwd(), "keys", "rsa.key"))
     ) {
