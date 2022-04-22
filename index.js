@@ -35,7 +35,12 @@ class KeyStore {
 }
 
 function generateSigningRequestHandler(reqObj, secretKey, asymmetric) {
-  return (_req, res) => {
+  return (req, res) => {
+    if ((req.query?.origin ?? "") === "") {
+      res.status(400).send("Bad Request");
+      return;
+    }
+    reqObj.redirectUrl = req.query.origin;
     if (asymmetric) {
       new jose.SignJWT(reqObj)
         .setProtectedHeader({
